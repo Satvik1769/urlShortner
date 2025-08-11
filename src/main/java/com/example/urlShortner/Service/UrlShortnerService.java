@@ -3,6 +3,7 @@ package com.example.urlShortner.Service;
 import com.example.urlShortner.Domain.UrlMapping;
 import com.example.urlShortner.Repository.UrlMappingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,12 @@ import java.util.Optional;
 @Service
 public class UrlShortnerService {
     private int maxLength = 7;
-    private String baseUrl = "http://localhost:8080/";
+
+    @Value("${server.port}")
+    private String port;
+
+    private String baseUrl = "http://localhost:" + port + "/";
+
 
     @Autowired
     private UrlMappingRepository urlMappingRepository;
@@ -115,16 +121,11 @@ public class UrlShortnerService {
             if (dataCenterId < 0 || dataCenterId > 31) {
                 throw new IllegalArgumentException("Data center ID must be between 0 and 31");
             }
-         else {
-             dataCenterId = 0;
-    }
 
         if (workerId < 0 || workerId > 31) {
             throw new IllegalArgumentException("Worker ID must be between 0 and 31");
         }
-        else {
-            workerId = 0;
-        }
+
         UrlMapping domain = new UrlMapping();
         domain.setOriginalUrl(originalUrl);
         domain.setCreatedAt(LocalDateTime.now());
@@ -142,7 +143,5 @@ public class UrlShortnerService {
         return urlMappingRepository.findByShortUrl(shortUrl)
                 .map(UrlMapping::getOriginalUrl);
     }
-
-
 
 }
